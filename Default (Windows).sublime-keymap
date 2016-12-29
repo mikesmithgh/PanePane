@@ -1,0 +1,6 @@
+[
+    { "keys": ["ctrl+alt+j"], "command": "resize", "args": { "orientation": "cols", "amount": -5 } },
+    { "keys": ["ctrl+alt+k"], "command": "resize", "args": { "orientation": "cols", "amount": 5 } },
+    { "keys": ["ctrl+alt+h"], "command": "resize", "args": { "orientation": "rows", "amount": -5 } },
+    { "keys": ["ctrl+alt+l"], "command": "resize", "args": { "orientation": "rows", "amount": 5 } }
+]

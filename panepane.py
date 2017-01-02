@@ -34,11 +34,9 @@ def get_direction(cell, points, orientation):
 
 def get_point_index(cell, points, orientation, direction):
 	p1, p2 = get_indices(orientation)
-	point_index = cell[p2] if direction > 0 else cell[p1]
-	if (point_index == (len(points) - 1)):
-		point_index -= 1
-	if (point_index == 0):
-		point_index = 1
+	point_index, other_index = (cell[p2], cell[p1]) if direction > 0 else (cell[p1], cell[p2])
+	if point_index == (len(points) - 1) and (point_index == 0):
+		point_index = other_index
 	return point_index
 
 def get_adjacent_direction(orientation, direction):
@@ -52,36 +50,6 @@ def get_adjacent_direction(orientation, direction):
 
 def get_similar_directions(orientation):
 	return [UP, DOWN] if is_cols(orientation) else [LEFT, RIGHT]
-
-def old_get_adjacent_cells(cell, cells, directions):
-	cooridinate_map = {
-		LEFT: (X1, X2),
-		UP: (Y1, Y2),
-		RIGHT: (X2, X1),
-		DOWN: (Y2, Y1)
-	}
-	adjacent_cells = []
-	for c in cells:
-		for direction in directions:
-			p1, p2 = cooridinate_map[direction]
-			if (cell[p1] == c[p2]):
-				# todo clean up logic
-				if (direction == UP) or (direction == DOWN):
-					if (c[X1] <= cell[X1]) and (c[X2] >= cell[X1]):
-						adjacent_cells.append(c)
-					elif (c[X2] >= cell[X2]) and (c[X1] <= cell[X2]):
-						adjacent_cells.append(c)
-					elif (c[X1] >= cell[X1]) and (c[X2] <= cell[X2]):
-						adjacent_cells.append(c)
-				elif (direction == LEFT) or (direction == RIGHT):
-					if (c[Y1] <= cell[Y1]) and (c[Y2] >= cell[Y1]):
-						adjacent_cells.append(c)
-					elif (c[Y2] >= cell[Y2]) and (c[Y1] <= cell[Y2]):
-						adjacent_cells.append(c)
-					elif (c[Y1] >= cell[Y1]) and (c[Y2] <= cell[Y2]):
-						adjacent_cells.append(c)
-
-	return adjacent_cells
 
 def get_adjacent_cells(point_index, cells, directions):
 	cooridinate_map = {
@@ -101,12 +69,8 @@ def get_adjacent_cells(point_index, cells, directions):
 def get_point_min_max(cell, cells, point_index, orientation, direction): 
 	p1, p2 = get_indices(orientation)
 	adjacent_direction = get_adjacent_direction(orientation, direction)
-	p('dir')
-	p(direction)
 	if direction > 0:
 		max_adj_cells = get_adjacent_cells(point_index, cells, [adjacent_direction])
-		p(adjacent_direction)
-		p("max")
 		p(max_adj_cells)
 		if max_adj_cells:
 			point_max = min(list(map(lambda c: c[p2], max_adj_cells)))
@@ -120,7 +84,6 @@ def get_point_min_max(cell, cells, point_index, orientation, direction):
 		else:
 			point_min = cell[p1]
 	else:
-		# min_adj_cells = get_adjacent_cells(cell, cells, [adjacent_direction])
 		min_adj_cells = get_adjacent_cells(point_index, cells, [adjacent_direction])
 		if min_adj_cells:
 			point_min = max(list(map(lambda c: c[p1], min_adj_cells)))
@@ -129,54 +92,6 @@ def get_point_min_max(cell, cells, point_index, orientation, direction):
 
 		opposite_direction = OPPOSITE[adjacent_direction]
 		max_adj_cells = get_adjacent_cells(cell[p2], cells, [opposite_direction])
-		if max_adj_cells:
-			point_max = min(list(map(lambda c: c[p1], max_adj_cells)))
-		else:
-			point_max = cell[p2]
-
-	return point_min, point_max
-
-def old_get_point_min_max(cell, cells, orientation, direction): 
-	p1, p2 = get_indices(orientation)
-	adjacent_direction = get_adjacent_direction(orientation, direction)
-	# todo clean up logic
-	if direction > 0:
-		max_adj_cells = get_adjacent_cells(cell, cells, [adjacent_direction])
-		if max_adj_cells:
-			point_max = min(list(map(lambda c: c[p2], max_adj_cells)))
-		else:
-			point_max = cell[p2]
-
-		opposite_direction = OPPOSITE[adjacent_direction]
-		min_adj_cells = get_adjacent_cells(cell, cells, [opposite_direction])
-		# min_adj_cells.append(cell)
-		p(min_adj_cells)
-		p("woo")
-		p(cell)
-		if min_adj_cells:
-			point_min = max(list(map(lambda c: c[p2], min_adj_cells)))
-		else:
-			point_min = cell[p1]
-		#testing similar logic
-		# max_adj_cells = get_adjacent_cells(cell, cells, [adjacent_direction])
-		# if max_adj_cells:
-		# 	point_max = min(list(map(lambda c: c[p2], max_adj_cells)))
-		# else:
-		# 	point_max = cell[p2]
-
-		# similar_directions = get_similar_directions(orientation)
-		# min_adj_cells = get_adjacent_cells(cell, cells, similar_directions)
-		# min_adj_cells.append(cell)
-		# point_min = max(list(map(lambda c: c[p1], min_adj_cells)))
-	else:
-		min_adj_cells = get_adjacent_cells(cell, cells, [adjacent_direction])
-		if min_adj_cells:
-			point_min = max(list(map(lambda c: c[p1], min_adj_cells)))
-		else:
-			point_min = cell[p1]
-
-		opposite_direction = OPPOSITE[adjacent_direction]
-		max_adj_cells = get_adjacent_cells(cell, cells, [opposite_direction])
 		if max_adj_cells:
 			point_max = min(list(map(lambda c: c[p1], max_adj_cells)))
 		else:
@@ -193,6 +108,7 @@ def swap_cell(cell, swap, indices):
 	return cell
 
 def swap_cells(swap_pos, pos, cells, active_cell, points):
+	# todo: swap views, views are accidentally moving when cells are swapped
 	swaps = []
 	for i in range(len(pos)):
 		if pos[i] != swap_pos[i]:
@@ -234,41 +150,23 @@ class ResizeCommand(sublime_plugin.WindowCommand):
 		point_min_index, point_max_index = get_point_min_max(active_cell, cells, point_index, orientation, direction)
 		point_min = points[point_min_index]
 		point_max = points[point_max_index]
-		p("min_max")
-		p(point_min_index)
-		p(point_max_index)
 		new_point_value = round(float(points[point_index]) + (amount / 100), 2) 
-		if (new_point_value > point_min) and (new_point_value < point_max):
-			# if (points[point_index - 1] > new_point_value):
-			# 	points[point_index] = points[point_index - 1]
-			# 	point_index = point_index - 1
-			# elif (points[point_index + 1] < new_point_value):
-			# 	points[point_index] = points[point_index + 1]
-			# 	point_index = point_index + 1
-			# might need to sort
+
+		if (new_point_value > point_min and
+			new_point_value < point_max and
+			new_point_value != point_min and
+			new_point_value != point_max):
 			points[point_index] = new_point_value
-			if (points[point_index] == points[point_index - 1]):
-				points[point_index] += 0.01
-			elif (points[point_index] == points[point_index + 1]):
-				points[point_index] -= 0.01	
-
-
 			if (is_cols(orientation)):
 				cols = points
 			else:
 				rows = points
-
 			cols, rows, cells, active_group = sort_layout(cols, rows, cells, active_group)
 			active_cell = cells[active_group]
 			new_direction = get_direction(active_cell, points, orientation)
-			p("direction")
-			p(direction)
-			# self.sort_and_set_layout(cols, rows, cells, active_group)
 			# do not set layout if this will revere the direction, this will flip each command and may be confusing
-			if (direction == new_direction):
-				self.set_layout(cols, rows, cells, active_group)	
-			p(self.window.layout()["cols"])
-
+			# if (direction == new_direction):
+			self.set_layout(cols, rows, cells, active_group)	
 
 	def get_layout(self):
 		window = self.window

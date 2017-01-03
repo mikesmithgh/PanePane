@@ -135,7 +135,7 @@ def sort_layout(cols, rows, cells, active_group):
 
 
 class ResizeCommand(sublime_plugin.WindowCommand):
-	def run(self, orientation, amount = 5):
+	def run(self, orientation, amount = 3):
 		self.resize(orientation, amount)
 
 	def resize(self, orientation, amount):

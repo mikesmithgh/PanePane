@@ -28,16 +28,20 @@ def is_rows(orientation):
 def get_points(cols, rows, orientation):
 	return cols if is_cols(orientation) else rows
 
-def get_direction(cell, points, orientation):
-	index = 0 if is_cols(orientation) else 1
-	return 1 if (cell[index] <= (len(points) / 2) - 1) else -1
+def get_direction(point, points):
+	return 1 if (point <= (len(points) / 2) - 1) else -1
 
 def get_point_index(cell, points, orientation, direction):
 	p1, p2 = get_indices(orientation)
 	point_index, other_index = (cell[p2], cell[p1]) if direction > 0 else (cell[p1], cell[p2])
-	if point_index == (len(points) - 1) and (point_index == 0):
+	if (cell[p1] == 0) and cell[p2] == (len(points) - 1):
+		# cell takes up entire row/column so there is no point index
+		return -1, 0
+	elif (point_index == 0) or point_index == (len(points) - 1):
+		# edge case, take opposite point to avoid overflowing
 		point_index = other_index
-	return point_index
+		direction = get_direction(point_index, points) * -1
+	return point_index, direction
 
 def get_adjacent_direction(orientation, direction):
 	if is_cols(orientation):
@@ -71,7 +75,6 @@ def get_point_min_max(cell, cells, point_index, orientation, direction):
 	adjacent_direction = get_adjacent_direction(orientation, direction)
 	if direction > 0:
 		max_adj_cells = get_adjacent_cells(point_index, cells, [adjacent_direction])
-		p(max_adj_cells)
 		if max_adj_cells:
 			point_max = min(list(map(lambda c: c[p2], max_adj_cells)))
 		else:
@@ -95,8 +98,9 @@ def get_point_min_max(cell, cells, point_index, orientation, direction):
 		if max_adj_cells:
 			point_max = min(list(map(lambda c: c[p1], max_adj_cells)))
 		else:
-			point_max = cell[p2]
-
+			max_adj_cells = get_adjacent_cells(cell[p1], cells, [opposite_direction])
+			point_max = min(list(map(lambda c: c[p2], max_adj_cells)))
+			# point_max = (cell[p1] + 1) if is_cols(orientation) else cell[p2]
 	return point_min, point_max
 
 def swap_cell(cell, swap, indices):
@@ -108,7 +112,6 @@ def swap_cell(cell, swap, indices):
 	return cell
 
 def swap_cells(swap_pos, pos, cells, active_cell, points):
-	# todo: swap views, views are accidentally moving when cells are swapped
 	swaps = []
 	for i in range(len(pos)):
 		if pos[i] != swap_pos[i]:
@@ -144,9 +147,13 @@ class ResizeCommand(sublime_plugin.WindowCommand):
 		cols, rows, cells, active_group = self.sort_and_get_layout()
 		active_cell = cells[active_group]
 		points = get_points(cols, rows, orientation)
-		direction = get_direction(active_cell, points, orientation)
+		p1, p2 = get_indices(orientation)
+		direction = get_direction(active_cell[p1], points)
+		point_index, direction = get_point_index(active_cell, points, orientation, direction)
+		# if point_index is less than zero, cell takes up entire row/column so there is no need to resize
+		if (point_index < 0):
+			return
 		amount *= direction
-		point_index = get_point_index(active_cell, points, orientation, direction)
 		point_min_index, point_max_index = get_point_min_max(active_cell, cells, point_index, orientation, direction)
 		point_min = points[point_min_index]
 		point_max = points[point_max_index]
@@ -161,12 +168,13 @@ class ResizeCommand(sublime_plugin.WindowCommand):
 				cols = points
 			else:
 				rows = points
-			cols, rows, cells, active_group = sort_layout(cols, rows, cells, active_group)
-			active_cell = cells[active_group]
-			new_direction = get_direction(active_cell, points, orientation)
+			cols, rows, sorted_cells, active_group = sort_layout(cols, rows, cells, active_group)
+			active_cell = sorted_cells[active_group]
+			new_direction = get_direction(active_cell[p1], points)
 			# do not set layout if this will revere the direction, this will flip each command and may be confusing
 			# if (direction == new_direction):
-			self.set_layout(cols, rows, cells, active_group)	
+			self.swap_views(cells, sorted_cells)
+			self.set_layout(cols, rows, sorted_cells, active_group)	
 
 	def get_layout(self):
 		window = self.window
@@ -189,3 +197,20 @@ class ResizeCommand(sublime_plugin.WindowCommand):
 
 	def sort_and_set_layout(self, cols, rows, cells, active_group):
 		self.set_layout(*sort_layout(cols, rows, cells, active_group))
+
+	def swap_views(self, sorted_cells, cells):
+		window = self.window
+		swaps = []
+		for i in range(len(cells)):
+			if cells[i] != sorted_cells[i]:
+				sorted_index = sorted_cells.index(cells[i])
+				swaps.append(sorted([i, sorted_index]))
+		swaps = list(swaps for swaps,_ in itertools.groupby(swaps))
+		for swap in swaps:
+			views = []
+			views.append(window.views_in_group(swap[0]))
+			views.append(window.views_in_group(swap[1]))
+			for i, v in enumerate(views[0]):
+				window.set_view_index(v, swap[1], i)
+			for i, v in enumerate(views[1]):
+				window.set_view_index(v, swap[0], i)

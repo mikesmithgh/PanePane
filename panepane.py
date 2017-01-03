@@ -13,9 +13,6 @@ OPPOSITE = {
 	LEFT: RIGHT
 }
 
-def p(v):
-	print(str(v))
-
 def get_indices(orientation):
 	return (X1, X2) if is_cols(orientation) else (Y1, Y2)
 
@@ -139,7 +136,6 @@ def sort_layout(cols, rows, cells, active_group):
 
 class ResizeCommand(sublime_plugin.WindowCommand):
 	def run(self, orientation, amount = 5):
-		p("**")
 		self.resize(orientation, amount)
 
 	def resize(self, orientation, amount):
@@ -170,9 +166,6 @@ class ResizeCommand(sublime_plugin.WindowCommand):
 				rows = points
 			cols, rows, sorted_cells, active_group = sort_layout(cols, rows, cells, active_group)
 			active_cell = sorted_cells[active_group]
-			new_direction = get_direction(active_cell[p1], points)
-			# do not set layout if this will revere the direction, this will flip each command and may be confusing
-			# if (direction == new_direction):
 			self.swap_views(cells, sorted_cells)
 			self.set_layout(cols, rows, sorted_cells, active_group)	
 

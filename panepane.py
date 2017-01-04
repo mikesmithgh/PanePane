@@ -13,23 +13,23 @@ OPPOSITE = {
 	LEFT: RIGHT
 }
 
-def get_indices(orientation):
-	return (X1, X2) if is_cols(orientation) else (Y1, Y2)
+def get_indices(dimension):
+	return (X1, X2) if is_cols(dimension) else (Y1, Y2)
 
-def is_cols(orientation):
-	return orientation == COLS
+def is_cols(dimension):
+	return dimension == "width"
 
-def is_rows(orientation):
-	return orientation == ROWS
+def is_rows(dimension):
+	return dimension == "height"
 
-def get_points(cols, rows, orientation):
-	return cols if is_cols(orientation) else rows
+def get_points(cols, rows, dimension):
+	return cols if is_cols(dimension) else rows
 
 def get_direction(point, points):
 	return 1 if (point <= (len(points) / 2) - 1) else -1
 
-def get_point_index(cell, points, orientation, direction):
-	p1, p2 = get_indices(orientation)
+def get_point_index(cell, points, dimension, direction):
+	p1, p2 = get_indices(dimension)
 	point_index, other_index = (cell[p2], cell[p1]) if direction > 0 else (cell[p1], cell[p2])
 	if (cell[p1] == 0) and cell[p2] == (len(points) - 1):
 		# cell takes up entire row/column so there is no point index
@@ -40,8 +40,8 @@ def get_point_index(cell, points, orientation, direction):
 		direction = get_direction(point_index, points) * -1
 	return point_index, direction
 
-def get_adjacent_direction(orientation, direction):
-	if is_cols(orientation):
+def get_adjacent_direction(dimension, direction):
+	if is_cols(dimension):
 		d1 = RIGHT
 		d2 = LEFT
 	else:
@@ -49,8 +49,8 @@ def get_adjacent_direction(orientation, direction):
 		d2 = UP
 	return d1 if direction > 0 else d2
 
-def get_similar_directions(orientation):
-	return [UP, DOWN] if is_cols(orientation) else [LEFT, RIGHT]
+def get_similar_directions(dimension):
+	return [UP, DOWN] if is_cols(dimension) else [LEFT, RIGHT]
 
 def get_adjacent_cells(point_index, cells, directions):
 	cooridinate_map = {
@@ -67,9 +67,9 @@ def get_adjacent_cells(point_index, cells, directions):
 				adjacent_cells.append(c)
 	return adjacent_cells
 
-def get_point_min_max(cell, cells, point_index, orientation, direction): 
-	p1, p2 = get_indices(orientation)
-	adjacent_direction = get_adjacent_direction(orientation, direction)
+def get_point_min_max(cell, cells, point_index, dimension, direction): 
+	p1, p2 = get_indices(dimension)
+	adjacent_direction = get_adjacent_direction(dimension, direction)
 	if direction > 0:
 		max_adj_cells = get_adjacent_cells(point_index, cells, [adjacent_direction])
 		if max_adj_cells:
@@ -97,7 +97,6 @@ def get_point_min_max(cell, cells, point_index, orientation, direction):
 		else:
 			max_adj_cells = get_adjacent_cells(cell[p1], cells, [opposite_direction])
 			point_max = min(list(map(lambda c: c[p2], max_adj_cells)))
-			# point_max = (cell[p1] + 1) if is_cols(orientation) else cell[p2]
 	return point_min, point_max
 
 def swap_cell(cell, swap, indices):
@@ -134,23 +133,28 @@ def sort_layout(cols, rows, cells, active_group):
 	return sorted_cols, sorted_rows, sorted_cells, sorted_active_group
 
 
-class ResizeCommand(sublime_plugin.WindowCommand):
-	def run(self, orientation, amount = 3):
-		self.resize(orientation, amount)
+class PanePaneResizeCommand(sublime_plugin.WindowCommand):
 
-	def resize(self, orientation, amount):
+	def run(self, dimension, resize):
+		settings = sublime.load_settings("panepane.sublime-settings")
+		amount = settings.get("resize_amount")
+		if (resize == "decrease"):
+			amount *= -1 
+		self.resize(dimension, amount)
+
+	def resize(self, dimension, amount):
 		window = self.window
 		cols, rows, cells, active_group = self.sort_and_get_layout()
 		active_cell = cells[active_group]
-		points = get_points(cols, rows, orientation)
-		p1, p2 = get_indices(orientation)
+		points = get_points(cols, rows, dimension)
+		p1, p2 = get_indices(dimension)
 		direction = get_direction(active_cell[p1], points)
-		point_index, direction = get_point_index(active_cell, points, orientation, direction)
+		point_index, direction = get_point_index(active_cell, points, dimension, direction)
 		# if point_index is less than zero, cell takes up entire row/column so there is no need to resize
 		if (point_index < 0):
 			return
 		amount *= direction
-		point_min_index, point_max_index = get_point_min_max(active_cell, cells, point_index, orientation, direction)
+		point_min_index, point_max_index = get_point_min_max(active_cell, cells, point_index, dimension, direction)
 		point_min = points[point_min_index]
 		point_max = points[point_max_index]
 		new_point_value = round(float(points[point_index]) + (amount / 100), 2) 
@@ -160,7 +164,7 @@ class ResizeCommand(sublime_plugin.WindowCommand):
 			new_point_value != point_min and
 			new_point_value != point_max):
 			points[point_index] = new_point_value
-			if (is_cols(orientation)):
+			if (is_cols(dimension)):
 				cols = points
 			else:
 				rows = points

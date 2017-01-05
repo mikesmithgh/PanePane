@@ -186,6 +186,7 @@ class PanePaneResizeCommand(sublime_plugin.WindowCommand):
 		window = self.window
 		window.set_layout({ COLS: cols, ROWS: rows, CELLS: cells })
 		window.focus_group(active_group)
+		# todo focus view
 
 	def sort_and_get_layout(self):
 		cols, rows, cells, active_group = self.get_layout()
@@ -195,19 +196,18 @@ class PanePaneResizeCommand(sublime_plugin.WindowCommand):
 	def sort_and_set_layout(self, cols, rows, cells, active_group):
 		self.set_layout(*sort_layout(cols, rows, cells, active_group))
 
-	def swap_views(self, sorted_cells, cells):
+	def swap_views(self, cells, sorted_cells):
 		window = self.window
 		swaps = []
 		for i in range(len(cells)):
 			if cells[i] != sorted_cells[i]:
-				sorted_index = sorted_cells.index(cells[i])
-				swaps.append(sorted([i, sorted_index]))
-		swaps = list(swaps for swaps,_ in itertools.groupby(swaps))
+				swaps.append({
+					"group": sorted_cells.index(cells[i]),
+					"views": window.views_in_group(i),
+					"active_view": window.active_view_in_group(i)
+				})
 		for swap in swaps:
-			views = []
-			views.append(window.views_in_group(swap[0]))
-			views.append(window.views_in_group(swap[1]))
-			for i, v in enumerate(views[0]):
-				window.set_view_index(v, swap[1], i)
-			for i, v in enumerate(views[1]):
-				window.set_view_index(v, swap[0], i)
+			for index, view in enumerate(swap["views"]):
+				window.set_view_index(view, swap["group"], index)
+			# focus currently edited view in new group
+			window.focus_view(swap["active_view"])

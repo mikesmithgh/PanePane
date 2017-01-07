@@ -1,3 +1,4 @@
 {
+    // amount to resize pane in the range of 1 to 100
     "resize_amount": 3 
 }

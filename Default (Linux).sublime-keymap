@@ -1,19 +1,10 @@
 [
-    /*** angle brackets ***/
+    // ctrl + < decrease width
     { "keys": ["ctrl+,"], "command": "pane_pane_resize", "args": { "dimension": "width", "resize": "decrease" } },
+    // ctrl + > increase width
     { "keys": ["ctrl+."], "command": "pane_pane_resize", "args": { "dimension": "width", "resize": "increase" } },
+    // ctrl + shift + < decrease height
     { "keys": ["ctrl+shift+,"], "command": "pane_pane_resize", "args": { "dimension": "height", "resize": "decrease" } },
+    // ctrl + shift + > increase height
     { "keys": ["ctrl+shift+."], "command": "pane_pane_resize", "args": { "dimension": "height", "resize": "increase" } }
-
-    /*** vim-like ***/
-    // { "keys": ["ctrl+shift+h"], "command": "pane_pane_resize", "args": { "dimension": "width", "resize": "decrease" } },
-    // { "keys": ["ctrl+shift+l"], "command": "pane_pane_resize", "args": { "dimension": "width", "resize": "increase" } },
-    // { "keys": ["ctrl+shift+j"], "command": "pane_pane_resize", "args": { "dimension": "height", "resize": "decrease" } },
-    // { "keys": ["ctrl+shift+k"], "command": "pane_pane_resize", "args": { "dimension": "height", "resize": "increase" } },
-
-    /*** vim-like inverted ***/
-    // { "keys": ["ctrl+shift+j"], "command": "pane_pane_resize", "args": { "dimension": "width", "resize": "decrease" } },
-    // { "keys": ["ctrl+shift+k"], "command": "pane_pane_resize", "args": { "dimension": "width", "resize": "increase" } },
-    // { "keys": ["ctrl+shift+h"], "command": "pane_pane_resize", "args": { "dimension": "height", "resize": "decrease" } },
-    // { "keys": ["ctrl+shift+l"], "command": "pane_pane_resize", "args": { "dimension": "height", "resize": "increase" } }
 ]

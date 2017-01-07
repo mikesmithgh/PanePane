@@ -1,20 +1,10 @@
 [
-    /*** angle brackets ***/
+    // command + < decrease width
     { "keys": ["super+,"], "command": "pane_pane_resize", "args": { "dimension": "width", "resize": "decrease" } },
+    // command + > increase width
     { "keys": ["super+."], "command": "pane_pane_resize", "args": { "dimension": "width", "resize": "increase" } },
+    // command + shift + < decrease height
     { "keys": ["super+shift+,"], "command": "pane_pane_resize", "args": { "dimension": "height", "resize": "decrease" } },
+    // command + shift + > increase height
     { "keys": ["super+shift+."], "command": "pane_pane_resize", "args": { "dimension": "height", "resize": "increase" } }
-
-    /*** vim-like ***/
-    // { "keys": ["super+ctrl+h"], "command": "pane_pane_resize", "args": { "dimension": "width", "resize": "decrease" } },
-    // { "keys": ["super+ctrl+l"], "command": "pane_pane_resize", "args": { "dimension": "width", "resize": "increase" } },
-    // { "keys": ["super+ctrl+j"], "command": "pane_pane_resize", "args": { "dimension": "height", "resize": "decrease" } },
-    // { "keys": ["super+ctrl+k"], "command": "pane_pane_resize", "args": { "dimension": "height", "resize": "increase" } },
-
-    /*** vim-like inverted ***/
-    // { "keys": ["super+ctrl+j"], "command": "pane_pane_resize", "args": { "dimension": "width", "resize": "decrease" } },
-    // { "keys": ["super+ctrl+k"], "command": "pane_pane_resize", "args": { "dimension": "width", "resize": "increase" } },
-    // { "keys": ["super+ctrl+h"], "command": "pane_pane_resize", "args": { "dimension": "height", "resize": "decrease" } },
-    // { "keys": ["super+ctrl+l"], "command": "pane_pane_resize", "args": { "dimension": "height", "resize": "increase" } }
 ]
-

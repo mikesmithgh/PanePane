@@ -169,7 +169,6 @@ class PanePaneResizeCommand(sublime_plugin.WindowCommand):
 			else:
 				rows = points
 			cols, rows, sorted_cells, active_group = sort_layout(cols, rows, cells, active_group)
-			active_cell = sorted_cells[active_group]
 			self.swap_views(cells, sorted_cells)
 			self.set_layout(cols, rows, sorted_cells, active_group)	
 

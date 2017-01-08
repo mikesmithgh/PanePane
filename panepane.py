@@ -159,6 +159,12 @@ class PanePaneResizeCommand(sublime_plugin.WindowCommand):
 		point_max = points[point_max_index]
 		new_point_value = round(float(points[point_index]) + (amount / 100), 2) 
 
+		# if point value is greater/less than or equal to max/min then snap to edge of respective pane
+		if new_point_value >= point_max:
+			new_point_value = point_max - 0.01
+		if new_point_value <= point_min:
+			new_point_value = point_min + 0.01
+
 		if (new_point_value > point_min and
 			new_point_value < point_max and
 			new_point_value != point_min and

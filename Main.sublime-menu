@@ -15,6 +15,16 @@
                         "caption": "PanePane",
                         "children":
                         [
+                            // README
+                            {
+                                "caption": "README",
+                                "command": "open_file",
+                                "args": {
+                                    "file": "${packages}/panepane/README.md"
+                                }
+                            },
+                            { "caption": "-" },
+
                             // Settings - Default
                             {
                                 "caption": "Settings – Default",
@@ -47,8 +57,7 @@
                                 "args": {
                                     "file": "${packages}/User/Default ($platform).sublime-keymap"
                                 }
-                            },
-                            { "caption": "-" }
+                            }
                         ]
                     }
                 ]

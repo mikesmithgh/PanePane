@@ -1,6 +1,7 @@
 # PanePane
-
 Sublime Text 3 plugin to resize panes via keyboard shortcuts.
+
+![demo](screenshots/demo.gif)
 
 ## Features
 The following commands are available via keyboard shortcuts or the command palette:

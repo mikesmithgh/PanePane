@@ -11,3 +11,8 @@ The following commands are available via keyboard shortcuts or the command palet
 | Increase Pane Width   | `ctrl` + `>`           | `command` + `>`           |
 | Decrease Pane Height  | `ctrl` + `shift` + `<` | `command` + `shift` + `<` |
 | Increase Pane Height  | `ctrl` + `shift` + `>` | `command` + `shift` + `>` |
+
+## Settings
+| Setting               | Description                                    |
+|:----------------------|:-----------------------------------------------|
+| resize_amount         | Amount to resize pane in the range of 1 to 100 |

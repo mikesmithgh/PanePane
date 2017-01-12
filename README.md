@@ -10,8 +10,10 @@ The following commands are available via keyboard shortcuts or the command palet
 |:----------------------|:-----------------------|:--------------------------|
 | Decrease Pane Width   | `ctrl` + `<`           | `command` + `<`           |
 | Increase Pane Width   | `ctrl` + `>`           | `command` + `>`           |
+| Equal Pane Width      | `ctrl` + `alt` + `=`   | `command` + `alt` + `=`   |
 | Decrease Pane Height  | `ctrl` + `shift` + `<` | `command` + `shift` + `<` |
 | Increase Pane Height  | `ctrl` + `shift` + `>` | `command` + `shift` + `>` |
+| Equal Pane Height     | `ctrl` + `shift` + `=` | `command` + `shift` + `=` |
 
 ## Settings
 | Setting               | Description                                    |

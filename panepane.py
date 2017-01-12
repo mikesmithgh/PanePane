@@ -160,9 +160,21 @@ class PanePaneResizeCommand(sublime_plugin.WindowCommand):
     def run(self, dimension, resize):
         settings = sublime.load_settings("panepane.sublime-settings")
         amount = settings.get("resize_amount")
-        if resize == "decrease":
-            amount *= -1
-        self.resize(dimension, amount)
+        if resize == "decrease" or resize == "increase":
+            self.resize(dimension, (amount * -1) if resize == "decrease" else amount)
+        elif resize == "equal":
+            self.equalize(dimension)
+
+    def equalize(self, dimension):
+        cols, rows, cells, active_group = self.sort_and_get_layout()
+        points = get_points(cols, rows, dimension)
+        length = len(points)
+        points = [i * (1 / (length - 1)) for i in range(length)]
+        if is_cols(dimension):
+            cols = points
+        else:
+            rows = points
+        self.set_layout(cols, rows, cells, active_group)
 
     def resize(self, dimension, amount):
         cols, rows, cells, active_group = self.sort_and_get_layout()

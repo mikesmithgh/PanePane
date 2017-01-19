@@ -19,3 +19,11 @@ The following commands are available via keyboard shortcuts or the command palet
 | Setting               | Description                                    |
 |:----------------------|:-----------------------------------------------|
 | resize_amount         | Amount to resize pane in the range of 1 to 100 |
+
+## Recommended Packages
+The following packages are recommended in conjunction with PanePane to improve Sublime Text's layouts and pane management.
+
+| Package       | URL                                              |
+|:--------------|:-------------------------------------------------|
+| Origami       | https://packagecontrol.io/packages/Origami       |
+| InactivePanes | https://packagecontrol.io/packages/InactivePanes |

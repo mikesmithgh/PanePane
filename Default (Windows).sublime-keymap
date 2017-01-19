@@ -3,8 +3,12 @@
     { "keys": ["ctrl+,"], "command": "pane_pane_resize", "args": { "dimension": "width", "resize": "decrease" } },
     // ctrl + > increase width
     { "keys": ["ctrl+."], "command": "pane_pane_resize", "args": { "dimension": "width", "resize": "increase" } },
+    // ctrl + alt + = equal width
+    { "keys": ["ctrl+alt+="], "command": "pane_pane_resize", "args": { "dimension": "width", "resize": "equal" } },
     // ctrl + shift + < decrease height
     { "keys": ["ctrl+shift+,"], "command": "pane_pane_resize", "args": { "dimension": "height", "resize": "decrease" } },
     // ctrl + shift + > increase height
-    { "keys": ["ctrl+shift+."], "command": "pane_pane_resize", "args": { "dimension": "height", "resize": "increase" } }
+    { "keys": ["ctrl+shift+."], "command": "pane_pane_resize", "args": { "dimension": "height", "resize": "increase" } },
+    // ctrl + shift + = equal height
+    { "keys": ["ctrl+shift+="], "command": "pane_pane_resize", "args": { "dimension": "height", "resize": "equal" } }
 ]

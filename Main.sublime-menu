@@ -20,7 +20,7 @@
                                 "caption": "README",
                                 "command": "open_file",
                                 "args": {
-                                    "file": "${packages}/panepane/README.md"
+                                    "file": "${packages}/PanePane/README.md"
                                 }
                             },
                             { "caption": "-" },
@@ -30,7 +30,7 @@
                                 "caption": "Settings – Default",
                                 "command": "open_file",
                                 "args": {
-                                    "file": "${packages}/panepane/panepane.sublime-settings"
+                                    "file": "${packages}/PanePane/PanePane.sublime-settings"
                                 }
                             },
                             // Settings - User
@@ -38,7 +38,7 @@
                                 "caption": "Settings – User",
                                 "command": "open_file",
                                 "args": {
-                                    "file": "${packages}/User/panepane.sublime-settings"
+                                    "file": "${packages}/User/PanePane.sublime-settings"
                                 }
                             },
                             { "caption": "-" },
@@ -47,7 +47,7 @@
                                 "caption": "Key Bindings – Default",
                                 "command": "open_file",
                                 "args": {
-                                    "file": "${packages}/panepane/Default ($platform).sublime-keymap"
+                                    "file": "${packages}/PanePane/Default ($platform).sublime-keymap"
                                 }
                             },
                             // Key Bindings - User

@@ -158,7 +158,7 @@ def sort_layout(cols, rows, cells, active_group):
 class PanePaneResizeCommand(sublime_plugin.WindowCommand):
 
     def run(self, dimension, resize):
-        settings = sublime.load_settings("panepane.sublime-settings")
+        settings = sublime.load_settings("PanePane.sublime-settings")
         amount = settings.get("resize_amount")
         if resize == "decrease" or resize == "increase":
             self.resize(dimension, (amount * -1) if resize == "decrease" else amount)

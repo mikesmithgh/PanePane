@@ -232,8 +232,8 @@ class PanePaneResizeCommand(sublime_plugin.WindowCommand):
         # todo focus view
 
     def sort_and_get_layout(self):
-        cols, rows, cells, active_group = sort_layout(*self.get_layout())
-        self.set_layout(cols, rows, cells, active_group)
+        cols, rows, cells, active_group = self.get_layout()
+        self.set_layout(*sort_layout(cols, rows, cells, active_group))
         return cols, rows, cells, active_group
 
     def sort_and_set_layout(self, cols, rows, cells, active_group):

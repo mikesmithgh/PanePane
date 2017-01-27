@@ -27,8 +27,8 @@ def is_rows(dimension):
     return dimension == "height"
 
 
-def get_points(cols, rows, dimension):
-    return cols if is_cols(dimension) else rows
+def get_points(layout, dimension):
+    return layout[COLS] if is_cols(dimension) else layout[ROWS]
 
 
 def get_sign(point, points):
@@ -167,7 +167,7 @@ class PanePaneResizeCommand(sublime_plugin.WindowCommand):
 
     def equalize(self, dimension):
         cols, rows, cells, active_group = self.sort_and_get_layout()
-        points = get_points(cols, rows, dimension)
+        points = get_points({COLS: cols, ROWS: rows}, dimension)
         length = len(points)
         points = [i * (1 / (length - 1)) for i in range(length)]
         if is_cols(dimension):
@@ -179,7 +179,7 @@ class PanePaneResizeCommand(sublime_plugin.WindowCommand):
     def resize(self, dimension, amount):
         cols, rows, cells, active_group = self.sort_and_get_layout()
         active_cell = cells[active_group]
-        points = get_points(cols, rows, dimension)
+        points = get_points({COLS: cols, ROWS: rows}, dimension)
         point, _ = get_indices(dimension)
         sign = get_sign(active_cell[point], points)
         point_index, sign = get_point_index(

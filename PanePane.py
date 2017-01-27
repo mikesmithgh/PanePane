@@ -4,9 +4,10 @@ import sublime_plugin
 
 LEFT, UP, RIGHT, DOWN = list(range(4))
 X1, Y1, X2, Y2 = list(range(4))
+ACTIVE_GROUP = "active_group"
+CELLS = "cells"
 COLS = "cols"
 ROWS = "rows"
-CELLS = "cells"
 OPPOSITE = {
     UP: DOWN,
     RIGHT: LEFT,
@@ -219,11 +220,8 @@ class PanePaneResizeCommand(sublime_plugin.WindowCommand):
     def get_layout(self):
         window = self.window
         layout = window.get_layout()
-        cols = layout[COLS]
-        rows = layout[ROWS]
-        cells = layout[CELLS]
-        active_group = window.active_group()
-        return cols, rows, cells, active_group
+        layout.update({ ACTIVE_GROUP : window.active_group() })
+        return layout
 
     def set_layout(self, cols, rows, cells, active_group):
         window = self.window
@@ -232,7 +230,11 @@ class PanePaneResizeCommand(sublime_plugin.WindowCommand):
         # todo focus view
 
     def sort_and_get_layout(self):
-        cols, rows, cells, active_group = self.get_layout()
+        layout = self.get_layout()
+        cols = layout[COLS]
+        rows = layout[ROWS]
+        cells = layout[CELLS]
+        active_group = layout[ACTIVE_GROUP]
         self.set_layout(*sort_layout(cols, rows, cells, active_group))
         return cols, rows, cells, active_group
 

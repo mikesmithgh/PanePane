@@ -219,7 +219,7 @@ class PanePaneResizeCommand(sublime_plugin.WindowCommand):
             self.equalize(dimension)
 
     def equalize(self, dimension):
-        layout = self.sort_and_get_layout()
+        layout, _ = self.sort_and_get_layout()
         points = get_points(layout, dimension)
         length = len(points)
         points = [i * (1 / (length - 1)) for i in range(length)]
@@ -227,9 +227,9 @@ class PanePaneResizeCommand(sublime_plugin.WindowCommand):
         self.set_layout(layout)
 
     def resize(self, dimension, amount):
-        layout = self.sort_and_get_layout()
-        cells = layout[CELLS]
-        active_cell = get_active_cell(layout)
+        layout, orig_layout = self.sort_and_get_layout()
+        cells = orig_layout[CELLS]
+        active_cell = get_active_cell(orig_layout)
         points = get_points(layout, dimension)
         point, _ = get_indices(dimension)
         sign = get_sign(active_cell[point], points)
@@ -237,20 +237,20 @@ class PanePaneResizeCommand(sublime_plugin.WindowCommand):
             active_cell, points, dimension, sign)
         # if point_index is less than zero, cell takes up entire row/column so
         # there is no need to resize
-        if point_index < 0:
-            return
-        amount *= sign
-        point_min_index, point_max_index = get_point_min_max(
-            active_cell, cells, point_index, dimension, sign)
-        point_min = points[point_min_index]
-        point_max = points[point_max_index]
-        new_point_value = calc_point_value(
-            point_index, amount, points, point_min, point_max)
-        if (is_valid_point_value(new_point_value, point_min, point_max)):
-            points[point_index] = new_point_value
-            layout = sort_layout(set_points(layout, dimension, points))
-            self.swap_views(cells, layout[CELLS])
-            self.set_layout(layout)
+        if point_index >= 0:
+            amount *= sign
+            point_min_index, point_max_index = get_point_min_max(
+                active_cell, cells, point_index, dimension, sign)
+            point_min = points[point_min_index]
+            point_max = points[point_max_index]
+            new_point_value = calc_point_value(
+                point_index, amount, points, point_min, point_max)
+            if (is_valid_point_value(new_point_value, point_min, point_max)):
+                points[point_index] = new_point_value
+                layout = sort_layout(set_points(layout, dimension, points))
+
+        self.swap_views(cells, layout[CELLS])
+        self.set_layout(layout)
 
     def get_layout(self):
         window = self.window
@@ -260,15 +260,15 @@ class PanePaneResizeCommand(sublime_plugin.WindowCommand):
 
     def set_layout(self, layout):
         window = self.window
-        active_group = layout.pop(ACTIVE_GROUP)
         window.set_layout(layout)
-        window.focus_group(active_group)
+        window.focus_group(layout[ACTIVE_GROUP])
         # todo focus view
 
     def sort_and_get_layout(self):
         layout = self.get_layout()
-        self.set_layout(sort_layout(layout))
-        return layout
+        sorted_layout = sort_layout(layout)
+        self.set_layout(sorted_layout)
+        return sorted_layout, layout
 
     def sort_and_set_layout(self, cols, rows, cells, active_group):
         self.set_layout(sort_layout(

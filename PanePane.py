@@ -63,6 +63,8 @@ def get_adjacent_direction(dimension, sign):
 def get_similar_signs(dimension):
     return [UP, DOWN] if is_cols(dimension) else [LEFT, RIGHT]
 
+def get_active_cell(layout):
+    return layout[CELLS][layout[ACTIVE_GROUP]]
 
 def get_adjacent_cells(point_index, cells, signs):
     cooridinate_map = {
@@ -143,18 +145,30 @@ def swap_cells(swap_pos, pos, cells, active_cell, points):
     return cells, active_cell
 
 
-def sort_layout(cols, rows, cells, active_group):
-    active_cell = cells[active_group]
-    sorted_cols = sorted(cols)
-    cells, active_cell = swap_cells(
-        sorted_cols, cols, cells, active_cell, [X1, X2])
-    sorted_rows = sorted(rows)
-    cells, active_cell = swap_cells(
-        sorted_rows, rows, cells, active_cell, [Y1, Y2])
+def sort_layout(layout):
+    sorted_rows, sorted_cols, cells, active_cell = sort_layout_and_swap_cells(layout)
+    
     sorted_cells = sorted(cells)
     sorted_active_group = sorted_cells.index(active_cell)
+
     return sorted_cols, sorted_rows, sorted_cells, sorted_active_group
 
+def sort_points_and_swap_cells(points, cells, active_cell, indices):
+    sorted_points = sorted(points)
+    cells, active_cell = swap_cells(
+        sorted_points, points, cells, active_cell, indices)
+    return sorted_points, cells, active_cell
+
+def sort_layout_and_swap_cells(layout):
+    _, rows, cols, cells = layout.values()
+    active_cell = get_active_cell(layout)
+
+    sorted_cols, cells, active_cell = sort_points_and_swap_cells(
+        cols, cells, active_cell, [X1, X2])
+    sorted_rows, cells, active_cell = sort_points_and_swap_cells(
+        rows, cells, active_cell, [Y1, Y2])
+
+    return sorted_rows, sorted_cols, cells, active_cell
 
 class PanePaneResizeCommand(sublime_plugin.WindowCommand):
 
@@ -212,8 +226,9 @@ class PanePaneResizeCommand(sublime_plugin.WindowCommand):
                 cols = points
             else:
                 rows = points
-            cols, rows, sorted_cells, active_group = sort_layout(
-                cols, rows, cells, active_group)
+            cols, rows, sorted_cells, active_group = sort_layout({
+                COLS: cols, ROWS: rows, CELLS: cells, ACTIVE_GROUP: active_group })
+
             self.swap_views(cells, sorted_cells)
             self.set_layout(cols, rows, sorted_cells, active_group)
 
@@ -235,11 +250,11 @@ class PanePaneResizeCommand(sublime_plugin.WindowCommand):
         rows = layout[ROWS]
         cells = layout[CELLS]
         active_group = layout[ACTIVE_GROUP]
-        self.set_layout(*sort_layout(cols, rows, cells, active_group))
+        self.set_layout(*sort_layout({ COLS: cols, ROWS: rows, CELLS: cells, ACTIVE_GROUP: active_group }))
         return cols, rows, cells, active_group
 
     def sort_and_set_layout(self, cols, rows, cells, active_group):
-        self.set_layout(*sort_layout(cols, rows, cells, active_group))
+        self.set_layout(*sort_layout({ COLS: cols, ROWS: rows, CELLS: cells, ACTIVE_GROUP: active_group }))
 
     def swap_views(self, cells, sorted_cells):
         window = self.window

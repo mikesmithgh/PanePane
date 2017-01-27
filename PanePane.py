@@ -176,9 +176,12 @@ def sort_points_and_swap_cells(points, cells, active_cell, indices):
     return sorted_points, cells, active_cell
 
 
+def get_layout_tuple(layout):
+    return get_active_cell(layout), layout[ACTIVE_GROUP], layout[COLS], layout[ROWS], layout[CELLS]
+
+
 def sort_layout_and_swap_cells(layout):
-    _, cols, rows, cells = layout.values()
-    active_cell = get_active_cell(layout)
+    active_cell, _, cols, rows, cells = get_layout_tuple(layout)
 
     sorted_cols, cells, active_cell = sort_points_and_swap_cells(
         cols, cells, active_cell, [X1, X2])

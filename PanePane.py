@@ -72,7 +72,7 @@ def get_similar_signs(dimension):
 
 def get_active_cell(layout):
     return layout[CELLS][layout[ACTIVE_GROUP]]
-    
+
 
 def get_adjacent_cells(point_index, cells, signs):
     cooridinate_map = {
@@ -162,10 +162,10 @@ def sort_layout(layout):
 
 def create_layout(active_group, cols, rows, cells):
     return {
-       ACTIVE_GROUP: active_group,
-       COLS: cols,  
-       ROWS: rows,  
-       CELLS: cells
+        ACTIVE_GROUP: active_group,
+        COLS: cols,
+        ROWS: rows,
+        CELLS: cells
     }
 
 
@@ -189,21 +189,21 @@ def sort_layout_and_swap_cells(layout):
 
 
 def calc_point_value(point_index, amount, points, point_min, point_max):
-        new_point_value = round(float(points[point_index]) + (amount / 100), 2)
-        # if point value is greater/less than or equal to max/min then snap to
-        # edge of respective pane
-        if new_point_value >= point_max:
-            new_point_value = point_max - 0.01
-        if new_point_value <= point_min:
-            new_point_value = point_min + 0.01
-        return new_point_value
+    new_point_value = round(float(points[point_index]) + (amount / 100), 2)
+    # if point value is greater/less than or equal to max/min then snap to
+    # edge of respective pane
+    if new_point_value >= point_max:
+        new_point_value = point_max - 0.01
+    if new_point_value <= point_min:
+        new_point_value = point_min + 0.01
+    return new_point_value
 
 
 def is_valid_point_value(value, min_value, max_value):
-        return (value > min_value and
-               value < max_value and
-               value != min_value and
-               value != max_value)
+    return (value > min_value and
+            value < max_value and
+            value != min_value and
+            value != max_value)
 
 
 class PanePaneResizeCommand(sublime_plugin.WindowCommand):
@@ -212,7 +212,9 @@ class PanePaneResizeCommand(sublime_plugin.WindowCommand):
         settings = sublime.load_settings("PanePane.sublime-settings")
         amount = settings.get("resize_amount")
         if resize == "decrease" or resize == "increase":
-            self.resize(dimension, (amount * -1) if resize == "decrease" else amount)
+            if resize == "decrease":
+                amount *= -1
+            self.resize(dimension, amount)
         elif resize == "equal":
             self.equalize(dimension)
 
@@ -231,7 +233,8 @@ class PanePaneResizeCommand(sublime_plugin.WindowCommand):
         points = get_points(layout, dimension)
         point, _ = get_indices(dimension)
         sign = get_sign(active_cell[point], points)
-        point_index, sign = get_point_index( active_cell, points, dimension, sign)
+        point_index, sign = get_point_index(
+            active_cell, points, dimension, sign)
         # if point_index is less than zero, cell takes up entire row/column so
         # there is no need to resize
         if point_index < 0:
@@ -241,18 +244,18 @@ class PanePaneResizeCommand(sublime_plugin.WindowCommand):
             active_cell, cells, point_index, dimension, sign)
         point_min = points[point_min_index]
         point_max = points[point_max_index]
-        new_point_value = calc_point_value(point_index, amount, points, point_min, point_max)
+        new_point_value = calc_point_value(
+            point_index, amount, points, point_min, point_max)
         if (is_valid_point_value(new_point_value, point_min, point_max)):
             points[point_index] = new_point_value
             layout = sort_layout(set_points(layout, dimension, points))
             self.swap_views(cells, layout[CELLS])
             self.set_layout(layout)
 
-
     def get_layout(self):
         window = self.window
         layout = window.get_layout()
-        layout.update({ ACTIVE_GROUP : window.active_group() })
+        layout.update({ACTIVE_GROUP: window.active_group()})
         return layout
 
     def set_layout(self, layout):
@@ -268,7 +271,8 @@ class PanePaneResizeCommand(sublime_plugin.WindowCommand):
         return layout
 
     def sort_and_set_layout(self, cols, rows, cells, active_group):
-        self.set_layout(sort_layout(create_layout(active_group, cols, rows, cells)))
+        self.set_layout(sort_layout(
+            create_layout(active_group, cols, rows, cells)))
 
     def swap_views(self, cells, sorted_cells):
         window = self.window

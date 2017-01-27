@@ -188,18 +188,12 @@ class PanePaneResizeCommand(sublime_plugin.WindowCommand):
 
     def equalize(self, dimension):
         layout = self.sort_and_get_layout()
-        active_group = layout[ACTIVE_GROUP]
-        cols = layout[COLS]
-        rows = layout[ROWS]
-        cells = layout[CELLS]
-        points = get_points({COLS: cols, ROWS: rows}, dimension)
+        points = get_points(layout, dimension)
         length = len(points)
         points = [i * (1 / (length - 1)) for i in range(length)]
-        if is_cols(dimension):
-            cols = points
-        else:
-            rows = points
-        self.set_layout(create_layout(active_group, cols, rows, cells))
+        key = COLS if is_cols(dimension) else ROWS
+        layout[key] = points
+        self.set_layout(layout)
 
     def resize(self, dimension, amount):
         layout = self.sort_and_get_layout()

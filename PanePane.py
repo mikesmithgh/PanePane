@@ -32,6 +32,12 @@ def get_points(layout, dimension):
     return layout[COLS] if is_cols(dimension) else layout[ROWS]
 
 
+def set_points(layout, dimension, points):
+    key = COLS if is_cols(dimension) else ROWS
+    layout[key] = points
+    return layout
+
+
 def get_sign(point, points):
     return 1 if (point <= (len(points) / 2) - 1) else -1
 
@@ -63,8 +69,10 @@ def get_adjacent_direction(dimension, sign):
 def get_similar_signs(dimension):
     return [UP, DOWN] if is_cols(dimension) else [LEFT, RIGHT]
 
+
 def get_active_cell(layout):
     return layout[CELLS][layout[ACTIVE_GROUP]]
+    
 
 def get_adjacent_cells(point_index, cells, signs):
     cooridinate_map = {
@@ -151,6 +159,7 @@ def sort_layout(layout):
     active_group = cells.index(active_cell)
     return create_layout(active_group, cols, rows, cells)
 
+
 def create_layout(active_group, cols, rows, cells):
     return {
        ACTIVE_GROUP: active_group,
@@ -159,11 +168,13 @@ def create_layout(active_group, cols, rows, cells):
        CELLS: cells
     }
 
+
 def sort_points_and_swap_cells(points, cells, active_cell, indices):
     sorted_points = sorted(points)
     cells, active_cell = swap_cells(
         sorted_points, points, cells, active_cell, indices)
     return sorted_points, cells, active_cell
+
 
 def sort_layout_and_swap_cells(layout):
     _, cols, rows, cells = layout.values()
@@ -175,6 +186,25 @@ def sort_layout_and_swap_cells(layout):
         rows, cells, active_cell, [Y1, Y2])
 
     return sorted_cols, sorted_rows, cells, active_cell
+
+
+def calc_point_value(point_index, amount, points, point_min, point_max):
+        new_point_value = round(float(points[point_index]) + (amount / 100), 2)
+        # if point value is greater/less than or equal to max/min then snap to
+        # edge of respective pane
+        if new_point_value >= point_max:
+            new_point_value = point_max - 0.01
+        if new_point_value <= point_min:
+            new_point_value = point_min + 0.01
+        return new_point_value
+
+
+def is_valid_point_value(value, min_value, max_value):
+        return (value > min_value and
+               value < max_value and
+               value != min_value and
+               value != max_value)
+
 
 class PanePaneResizeCommand(sublime_plugin.WindowCommand):
 
@@ -191,22 +221,17 @@ class PanePaneResizeCommand(sublime_plugin.WindowCommand):
         points = get_points(layout, dimension)
         length = len(points)
         points = [i * (1 / (length - 1)) for i in range(length)]
-        key = COLS if is_cols(dimension) else ROWS
-        layout[key] = points
+        layout = set_points(layout, dimension, points)
         self.set_layout(layout)
 
     def resize(self, dimension, amount):
         layout = self.sort_and_get_layout()
-        active_group = layout[ACTIVE_GROUP]
-        cols = layout[COLS]
-        rows = layout[ROWS]
         cells = layout[CELLS]
-        active_cell = cells[active_group]
-        points = get_points({COLS: cols, ROWS: rows}, dimension)
+        active_cell = get_active_cell(layout)
+        points = get_points(layout, dimension)
         point, _ = get_indices(dimension)
         sign = get_sign(active_cell[point], points)
-        point_index, sign = get_point_index(
-            active_cell, points, dimension, sign)
+        point_index, sign = get_point_index( active_cell, points, dimension, sign)
         # if point_index is less than zero, cell takes up entire row/column so
         # there is no need to resize
         if point_index < 0:
@@ -216,28 +241,13 @@ class PanePaneResizeCommand(sublime_plugin.WindowCommand):
             active_cell, cells, point_index, dimension, sign)
         point_min = points[point_min_index]
         point_max = points[point_max_index]
-        new_point_value = round(float(points[point_index]) + (amount / 100), 2)
-
-        # if point value is greater/less than or equal to max/min then snap to
-        # edge of respective pane
-        if new_point_value >= point_max:
-            new_point_value = point_max - 0.01
-        if new_point_value <= point_min:
-            new_point_value = point_min + 0.01
-
-        if (new_point_value > point_min and
-                new_point_value < point_max and
-                new_point_value != point_min and
-                new_point_value != point_max):
+        new_point_value = calc_point_value(point_index, amount, points, point_min, point_max)
+        if (is_valid_point_value(new_point_value, point_min, point_max)):
             points[point_index] = new_point_value
-            if is_cols(dimension):
-                cols = points
-            else:
-                rows = points
-            layout = sort_layout(create_layout(active_group, cols, rows, cells))
-            active_group, cols, rows, sorted_cells = layout.values()
-            self.swap_views(cells, sorted_cells)
-            self.set_layout(create_layout(active_group, cols, rows, sorted_cells))
+            layout = sort_layout(set_points(layout, dimension, points))
+            self.swap_views(cells, layout[CELLS])
+            self.set_layout(layout)
+
 
     def get_layout(self):
         window = self.window

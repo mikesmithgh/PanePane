@@ -187,7 +187,11 @@ class PanePaneResizeCommand(sublime_plugin.WindowCommand):
             self.equalize(dimension)
 
     def equalize(self, dimension):
-        cols, rows, cells, active_group = self.sort_and_get_layout()
+        layout = self.sort_and_get_layout()
+        active_group = layout[ACTIVE_GROUP]
+        cols = layout[COLS]
+        rows = layout[ROWS]
+        cells = layout[CELLS]
         points = get_points({COLS: cols, ROWS: rows}, dimension)
         length = len(points)
         points = [i * (1 / (length - 1)) for i in range(length)]
@@ -198,7 +202,11 @@ class PanePaneResizeCommand(sublime_plugin.WindowCommand):
         self.set_layout(create_layout(active_group, cols, rows, cells))
 
     def resize(self, dimension, amount):
-        cols, rows, cells, active_group = self.sort_and_get_layout()
+        layout = self.sort_and_get_layout()
+        active_group = layout[ACTIVE_GROUP]
+        cols = layout[COLS]
+        rows = layout[ROWS]
+        cells = layout[CELLS]
         active_cell = cells[active_group]
         points = get_points({COLS: cols, ROWS: rows}, dimension)
         point, _ = get_indices(dimension)
@@ -252,12 +260,8 @@ class PanePaneResizeCommand(sublime_plugin.WindowCommand):
 
     def sort_and_get_layout(self):
         layout = self.get_layout()
-        cols = layout[COLS]
-        rows = layout[ROWS]
-        cells = layout[CELLS]
-        active_group = layout[ACTIVE_GROUP]
-        self.set_layout(sort_layout(create_layout(active_group, cols, rows, cells)))
-        return cols, rows, cells, active_group
+        self.set_layout(sort_layout(layout))
+        return layout
 
     def sort_and_set_layout(self, cols, rows, cells, active_group):
         self.set_layout(sort_layout(create_layout(active_group, cols, rows, cells)))

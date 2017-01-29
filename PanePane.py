@@ -248,7 +248,7 @@ class PanePaneResizeCommand(sublime_plugin.WindowCommand):
             point_max = points[point_max_index]
             new_point_value = calc_point_value(
                 point_index, amount, points, point_min, point_max)
-            if (is_valid_point_value(new_point_value, point_min, point_max)):
+            if is_valid_point_value(new_point_value, point_min, point_max):
                 points[point_index] = new_point_value
                 layout = sort_layout(set_points(layout, dimension, points))
 

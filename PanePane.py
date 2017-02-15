@@ -248,7 +248,14 @@ class PanePaneResizeCommand(sublime_plugin.WindowCommand):
         return self._settings.get(setting)
 
     def get_resize_amount(self):
-        return self.get_setting("resize_amount")
+        resize_amount = int(self.get_setting("resize_amount"))
+        # valid range is integers from 1 to 100
+        if (resize_amount <= 0):
+            return 1
+        elif (resize_amount > 100):
+            return 100
+        else:
+            return resize_amount
 
     def is_greedy_pane(self):
         return self.get_setting("greedy_pane")

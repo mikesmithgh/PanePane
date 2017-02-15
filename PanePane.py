@@ -349,3 +349,26 @@ class PanePaneResizeCommand(sublime_plugin.WindowCommand):
                 window.set_view_index(view, swap["group"], index)
             # focus currently edited view in new group
             window.focus_view(swap["active_view"])
+
+# TODO: refactor settings command this just an initial attempt playing around with settings
+class PanePaneSettingCommand(sublime_plugin.WindowCommand):
+    def init(self):
+        self._settings = sublime.load_settings("PanePane.sublime-settings")
+
+    def get_setting(self, setting, default=None):
+        return self._settings.get(setting, default)
+
+    def set_setting(self, setting, value):
+        self._settings.set(setting, value)
+
+    def toggle_boolean_setting(self, setting):
+        self.set_setting(setting, not self.get_setting(setting, False))
+
+    def update_setting(self, setting):
+        self.set_setting(setting, self.get_setting(setting))
+
+    def run(self):
+        self.init()
+        self.toggle_boolean_setting("greedy_pane");
+        self.update_setting("resize_amount")
+        self._settings = sublime.save_settings("PanePane.sublime-settings")

@@ -4,5 +4,6 @@
     { "command": "pane_pane_resize", "args": { "dimension": "width", "resize": "equal" }, "caption": "PanePane: Equal Pane Width" },
     { "command": "pane_pane_resize", "args": { "dimension": "height", "resize": "decrease" }, "caption": "PanePane: Decrease Pane Height" },
     { "command": "pane_pane_resize", "args": { "dimension": "height", "resize": "increase" }, "caption": "PanePane: Increase Pane Height" },
-    { "command": "pane_pane_resize", "args": { "dimension": "height", "resize": "equal" }, "caption": "PanePane: Equal Pane Height" }
+    { "command": "pane_pane_resize", "args": { "dimension": "height", "resize": "equal" }, "caption": "PanePane: Equal Pane Height" },
+    { "command": "pane_pane_setting", "args": { }, "caption": "PanePane: Toggle Greedy Pane" }
 ]

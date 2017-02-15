@@ -1,6 +1,6 @@
 {
     // {Boolean} if true, then adjust adjacent panes during resize
     "greedy_pane": true,
-    // {Number} the amount to resize pane in the range of 1 to 100
+    // {Integer} the amount to resize pane in the range of 1 to 100
     "resize_amount": 3 
 }

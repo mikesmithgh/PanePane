@@ -13,7 +13,7 @@ Sublime Text 3 plugin to resize panes via keyboard shortcuts.
 1. Navigate to the Packages directory
     * Open the command palette, press `ctrl` + `shift` + `p` (Windows/Linux) or `command` + `shift` + `p` (Mac) 
     * Enter the command `Preferences: Browse Packages`
-2. `git clone git@github.com:mjsmith1028/PanePane.git`
+2. `git clone https://github.com/mjsmith1028/PanePane.git`
 
 ## Features
 The following commands are available via keyboard shortcuts or the command palette:

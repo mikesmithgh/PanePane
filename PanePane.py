@@ -1,6 +1,7 @@
 import itertools
 import sublime
 import sublime_plugin
+import operator
 
 LEFT, UP, RIGHT, DOWN = list(range(4))
 X1, Y1, X2, Y2 = list(range(4))
@@ -191,8 +192,12 @@ def sort_layout_and_swap_cells(layout):
     return sorted_cols, sorted_rows, cells, active_cell
 
 
-def calc_point_value(point_index, amount, points, point_min, point_max):
-    new_point_value = round(float(points[point_index]) + (amount / 100), 2)
+def calc_point_value(point_value, amount):
+    return round(float(point_value) + (amount / 100), 2)
+
+
+def calc_point_value_with_boundaries(point_value, amount, point_min, point_max):
+    new_point_value = calc_point_value(point_value, amount)
     # if point value is greater/less than or equal to max/min then snap to
     # edge of respective pane
     if new_point_value >= point_max:
@@ -208,12 +213,49 @@ def is_valid_point_value(value, min_value, max_value):
             value != min_value and
             value != max_value)
 
+def get_greedy_points(point_index, points, new_point_value, amount):
+
+    greedy_points = list(points)
+    greedy_points[point_index] = new_point_value
+
+    if (points[point_index] < new_point_value):
+        step = 1
+        stop = len(greedy_points)
+        compare = operator.le
+    else:
+        step = -1
+        stop = -1
+        compare = operator.ge
+
+    # traverse points and increment/decrement if overlapped
+    for i in range(point_index + step, stop, step):
+        index = i + (step * -1)
+        if (compare(greedy_points[i], greedy_points[index])):
+            new_val = calc_point_value(greedy_points[index], amount)
+            if (is_valid_point_value(new_val, 0, 1) and new_val != greedy_points[index]):
+                greedy_points[i] = new_val
+            else:
+                return points
+
+    return greedy_points
 
 class PanePaneResizeCommand(sublime_plugin.WindowCommand):
 
+    def init(self):
+        self._settings = sublime.load_settings("PanePane.sublime-settings")
+
+    def get_setting(self, setting):
+        return self._settings.get(setting)
+
+    def get_resize_amount(self):
+        return self.get_setting("resize_amount")
+
+    def is_greedy_pane(self):
+        return self.get_setting("greedy_pane")
+
     def run(self, dimension, resize):
-        settings = sublime.load_settings("PanePane.sublime-settings")
-        amount = settings.get("resize_amount")
+        self.init()
+        amount = self.get_resize_amount()
         if resize == "decrease" or resize == "increase":
             if resize == "decrease":
                 amount *= -1
@@ -242,14 +284,22 @@ class PanePaneResizeCommand(sublime_plugin.WindowCommand):
         # there is no need to resize
         if point_index >= 0:
             amount *= sign
-            point_min_index, point_max_index = get_point_min_max(
-                active_cell, cells, point_index, dimension, sign)
-            point_min = points[point_min_index]
-            point_max = points[point_max_index]
-            new_point_value = calc_point_value(
-                point_index, amount, points, point_min, point_max)
+            if (self.is_greedy_pane()):
+                point_min = 0
+                point_max = 1
+            else:
+                point_min_index, point_max_index = get_point_min_max(
+                    active_cell, cells, point_index, dimension, sign)
+                point_min = points[point_min_index]
+                point_max = points[point_max_index]
+
+            new_point_value = calc_point_value_with_boundaries(
+                points[point_index], amount, point_min, point_max)
             if is_valid_point_value(new_point_value, point_min, point_max):
-                points[point_index] = new_point_value
+                if (self.is_greedy_pane()):
+                    points = get_greedy_points(point_index, points, new_point_value, amount)
+                else:
+                    points[point_index] = new_point_value
                 layout = sort_layout(set_points(layout, dimension, points))
 
         self.swap_views(cells, layout[CELLS])

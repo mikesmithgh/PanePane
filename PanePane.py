@@ -196,7 +196,7 @@ def calc_point_value(point_value, amount):
     return round(float(point_value) + (amount / 100), 2)
 
 
-def calc_point_value_with_boundaries(point_value, amount, point_min, point_max):
+def calc_point_value_in_boundaries(point_value, amount, point_min, point_max):
     new_point_value = calc_point_value(point_value, amount)
     # if point value is greater/less than or equal to max/min then snap to
     # edge of respective pane
@@ -213,12 +213,13 @@ def is_valid_point_value(value, min_value, max_value):
             value != min_value and
             value != max_value)
 
+
 def get_greedy_points(point_index, points, new_point_value, amount):
 
     greedy_points = list(points)
     greedy_points[point_index] = new_point_value
 
-    if (points[point_index] < new_point_value):
+    if points[point_index] < new_point_value:
         step = 1
         stop = len(greedy_points)
         compare = operator.le
@@ -230,14 +231,15 @@ def get_greedy_points(point_index, points, new_point_value, amount):
     # traverse points and increment/decrement if overlapped
     for i in range(point_index + step, stop, step):
         index = i + (step * -1)
-        if (compare(greedy_points[i], greedy_points[index])):
+        if compare(greedy_points[i], greedy_points[index]):
             new_val = calc_point_value(greedy_points[index], amount)
-            if (is_valid_point_value(new_val, 0, 1) and new_val != greedy_points[index]):
+            if is_valid_point_value(new_val, 0, 1) and new_val != greedy_points[index]:
                 greedy_points[i] = new_val
             else:
                 return points
 
     return greedy_points
+
 
 class PanePaneResizeCommand(sublime_plugin.WindowCommand):
 
@@ -250,9 +252,9 @@ class PanePaneResizeCommand(sublime_plugin.WindowCommand):
     def get_resize_amount(self):
         resize_amount = int(self.get_setting("resize_amount"))
         # valid range is integers from 1 to 100
-        if (resize_amount <= 0):
+        if resize_amount <= 0:
             return 1
-        elif (resize_amount > 100):
+        elif resize_amount > 100:
             return 100
         else:
             return resize_amount
@@ -291,7 +293,7 @@ class PanePaneResizeCommand(sublime_plugin.WindowCommand):
         # there is no need to resize
         if point_index >= 0:
             amount *= sign
-            if (self.is_greedy_pane()):
+            if self.is_greedy_pane():
                 point_min = 0
                 point_max = 1
             else:
@@ -300,11 +302,12 @@ class PanePaneResizeCommand(sublime_plugin.WindowCommand):
                 point_min = points[point_min_index]
                 point_max = points[point_max_index]
 
-            new_point_value = calc_point_value_with_boundaries(
+            new_point_value = calc_point_value_in_boundaries(
                 points[point_index], amount, point_min, point_max)
             if is_valid_point_value(new_point_value, point_min, point_max):
-                if (self.is_greedy_pane()):
-                    points = get_greedy_points(point_index, points, new_point_value, amount)
+                if self.is_greedy_pane():
+                    points = get_greedy_points(
+                        point_index, points, new_point_value, amount)
                 else:
                     points[point_index] = new_point_value
                 layout = sort_layout(set_points(layout, dimension, points))
@@ -350,8 +353,12 @@ class PanePaneResizeCommand(sublime_plugin.WindowCommand):
             # focus currently edited view in new group
             window.focus_view(swap["active_view"])
 
-# TODO: refactor settings command this just an initial attempt playing around with settings
+# TODO: refactor settings command this just an initial attempt playing
+# around with settings
+
+
 class PanePaneSettingCommand(sublime_plugin.WindowCommand):
+
     def init(self):
         self._settings = sublime.load_settings("PanePane.sublime-settings")
 
@@ -369,6 +376,6 @@ class PanePaneSettingCommand(sublime_plugin.WindowCommand):
 
     def run(self):
         self.init()
-        self.toggle_boolean_setting("greedy_pane");
+        self.toggle_boolean_setting("greedy_pane")
         self.update_setting("resize_amount")
         self._settings = sublime.save_settings("PanePane.sublime-settings")

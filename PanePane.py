@@ -241,16 +241,39 @@ def get_greedy_points(point_index, points, new_point_value, amount):
     return greedy_points
 
 
-class PanePaneResizeCommand(sublime_plugin.WindowCommand):
+class WindowCommandSettings(sublime_plugin.WindowCommand):
+    GREEDY_PANE = "greedy_pane"
+    RESIZE_AMOUNT = "resize_amount"
+    SETTINGS_FILE = "PanePane.sublime-settings"
 
-    def init(self):
-        self._settings = sublime.load_settings("PanePane.sublime-settings")
+    def get_setting(self, setting, default=None):
+        return self.settings().get(setting, default)
 
-    def get_setting(self, setting):
-        return self._settings.get(setting)
+    def set_setting(self, setting, value):
+        self.settings().set(setting, value)
+
+    def toggle_boolean_setting(self, setting):
+        self.set_setting(setting, not self.get_setting(setting, False))
+
+    def update_setting(self, setting):
+        self.set_setting(setting, self.get_setting(setting))
+
+    @classmethod
+    def save_settings(cls):
+        sublime.save_settings(
+            WindowCommandSettings.SETTINGS_FILE)
+
+    @classmethod
+    def settings(cls):
+        return sublime.load_settings(
+            WindowCommandSettings.SETTINGS_FILE)
+
+
+class PanePaneResizeCommand(WindowCommandSettings):
 
     def get_resize_amount(self):
-        resize_amount = int(self.get_setting("resize_amount"))
+        resize_amount = int(self.get_setting(
+            WindowCommandSettings.RESIZE_AMOUNT))
         # valid range is integers from 1 to 100
         if resize_amount <= 0:
             return 1
@@ -259,11 +282,7 @@ class PanePaneResizeCommand(sublime_plugin.WindowCommand):
         else:
             return resize_amount
 
-    def is_greedy_pane(self):
-        return self.get_setting("greedy_pane")
-
     def run(self, dimension, resize):
-        self.init()
         amount = self.get_resize_amount()
         if resize == "decrease" or resize == "increase":
             if resize == "decrease":
@@ -293,7 +312,7 @@ class PanePaneResizeCommand(sublime_plugin.WindowCommand):
         # there is no need to resize
         if point_index >= 0:
             amount *= sign
-            if self.is_greedy_pane():
+            if self.get_setting(WindowCommandSettings.GREEDY_PANE):
                 point_min = 0
                 point_max = 1
             else:
@@ -305,7 +324,7 @@ class PanePaneResizeCommand(sublime_plugin.WindowCommand):
             new_point_value = calc_point_value_in_boundaries(
                 points[point_index], amount, point_min, point_max)
             if is_valid_point_value(new_point_value, point_min, point_max):
-                if self.is_greedy_pane():
+                if self.get_setting(WindowCommandSettings.GREEDY_PANE):
                     points = get_greedy_points(
                         point_index, points, new_point_value, amount)
                 else:
@@ -353,29 +372,9 @@ class PanePaneResizeCommand(sublime_plugin.WindowCommand):
             # focus currently edited view in new group
             window.focus_view(swap["active_view"])
 
-# TODO: refactor settings command this just an initial attempt playing
-# around with settings
 
+class PanePaneToggleSettingCommand(WindowCommandSettings):
 
-class PanePaneSettingCommand(sublime_plugin.WindowCommand):
-
-    def init(self):
-        self._settings = sublime.load_settings("PanePane.sublime-settings")
-
-    def get_setting(self, setting, default=None):
-        return self._settings.get(setting, default)
-
-    def set_setting(self, setting, value):
-        self._settings.set(setting, value)
-
-    def toggle_boolean_setting(self, setting):
-        self.set_setting(setting, not self.get_setting(setting, False))
-
-    def update_setting(self, setting):
-        self.set_setting(setting, self.get_setting(setting))
-
-    def run(self):
-        self.init()
-        self.toggle_boolean_setting("greedy_pane")
-        self.update_setting("resize_amount")
-        self._settings = sublime.save_settings("PanePane.sublime-settings")
+    def run(self, setting):
+        self.toggle_boolean_setting(setting)
+        self.save_settings()

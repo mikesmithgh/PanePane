@@ -26,9 +26,9 @@ The following commands are available via keyboard shortcuts or the command palet
 | Decrease Pane Height  | `ctrl` + `shift` + `<` | `command` + `shift` + `<` |
 | Increase Pane Height  | `ctrl` + `shift` + `>` | `command` + `shift` + `>` |
 | Equal Pane Height     | `ctrl` + `shift` + `=` | `command` + `shift` + `=` |
-| Toggle Greedy Pane    | n/a                    | n/a                       |
-| Settings - Default    | n/a                    | n/a                       |
-| Settings - User       | n/a                    | n/a                       |
+| Toggle Greedy Pane    | `n/a`                  | `n/a`                     |
+| Settings - Default    | `n/a`                  | `n/a`                     |
+| Settings - User       | `n/a`                  | `n/a`                     |
 
 ## Settings
 | Setting               | Description                                        | Type    | Default |

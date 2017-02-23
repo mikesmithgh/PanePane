@@ -26,12 +26,18 @@ The following commands are available via keyboard shortcuts or the command palet
 | Decrease Pane Height  | `ctrl` + `shift` + `<` | `command` + `shift` + `<` |
 | Increase Pane Height  | `ctrl` + `shift` + `>` | `command` + `shift` + `>` |
 | Equal Pane Height     | `ctrl` + `shift` + `=` | `command` + `shift` + `=` |
+| Toggle Greedy Pane    | n/a                    | n/a                       |
+| Settings - Default    | n/a                    | n/a                       |
+| Settings - User       | n/a                    | n/a                       |
 
 ## Settings
 | Setting               | Description                                        | Type    | Default |
 |:----------------------|:---------------------------------------------------|:--------|:--------|
 | greedy_pane           | If true, then adjust adjacent panes during resize  | Boolean | false   |
 | resize_amount         | The amount to resize pane in the range of 1 to 100 | Integer | 3       |
+
+## Greedy Pane Demo
+![greedy_demo](screenshots/greedy_demo.gif)
 
 ## Recommended Packages
 The following packages are recommended in conjunction with PanePane to improve Sublime Text's layouts and pane management.

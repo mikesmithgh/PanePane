@@ -1,0 +1,9 @@
+PanePane 1.2.0
+--------------
+
+- Added greedy_pane setting. If true, then adjust adjacent panes during resize. A demo is available at: https://github.com/mjsmith1028/PanePane#greedy-pane-demo
+
+- Added the following commands to command palette:
+  * Preferences: PanePane Settings - Default
+  * Preferences: PanePane Settings - User
+  * PanePane: Toggle Greedy Pane

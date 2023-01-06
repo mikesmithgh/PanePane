@@ -1,3 +1,6 @@
+# :warning: **PanePane is inactive and no longer maintained.** :warning:
+> Feel free to fork and make it your own. Better yet, come join me on [Neovim](https://neovim.io/) :smile:.
+
 # PanePane
 Sublime Text 3 plugin to resize panes via keyboard shortcuts.
 
